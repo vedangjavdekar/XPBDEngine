@@ -1,6 +1,7 @@
 #include "DoorScene.h"
 #include "Engine/Application.h"
 #include "Constraints/HingeConstraint.h"
+#include "Constraints/PositionalConstraint.h"
 #include "Constraints/TransformationData.h"
 #include "raymath.h"
 #include "imgui.h"
@@ -16,7 +17,8 @@ namespace Scenes
 	{
 		static std::array<Simulation::Entity, 3> Entities;
 
-		static std::array<Simulation::HingeConstraint, 2> HingeConstraint;
+		static std::array<Simulation::HingeConstraint, 1> HingeConstraint;
+		static Simulation::PositionalConstraint PositionalConstraint;
 		static std::array<Simulation::TransformationData, 2> TransformationData;
 
 		static std::array<Utils::Physics::ForceInput, 2> ForceInputs;
@@ -33,7 +35,7 @@ namespace Scenes
 		}
 	}
 
-	DoorScene::DoorScene(const std::string &sceneName)
+	DoorScene::DoorScene(const std::string& sceneName)
 		: Scene(sceneName)
 	{
 		SetupEntities();
@@ -47,7 +49,7 @@ namespace Scenes
 
 	void DoorScene::OnInit()
 	{
-		for (auto &entity : Entities)
+		for (auto& entity : Entities)
 		{
 			entity.Reset();
 		}
@@ -59,16 +61,16 @@ namespace Scenes
 
 	void DoorScene::OnStartSimulationFrame()
 	{
-		for (auto &entity : Entities)
+		for (auto& entity : Entities)
 		{
 			entity.AddForce(
 				Simulation::PhysicalForce{
 					Eigen::Vector3f::Zero(),
 					Eigen::Vector3f(0.0f, -10.0f * 1.0f / entity.InverseMass, 0.0f),
-					false});
+					false });
 		}
 
-		for (auto &forceInput : ForceInputs)
+		for (auto& forceInput : ForceInputs)
 		{
 			forceInput.Apply();
 		}
@@ -76,7 +78,7 @@ namespace Scenes
 
 	void DoorScene::OnUpdatePosition(const float substepTime)
 	{
-		for (auto &entity : Entities)
+		for (auto& entity : Entities)
 		{
 			// Store to Previous
 			entity.PrevPosition = entity.Position;
@@ -105,7 +107,7 @@ namespace Scenes
 				0.0f,
 				entity.AngularVelocity(0),
 				entity.AngularVelocity(1),
-				entity.AngularVelocity(2)};
+				entity.AngularVelocity(2) };
 
 			Eigen::Quaternionf wq = OmegaQuaternion * entity.Rotation;
 			wq.coeffs() = entity.Rotation.coeffs() + substepTime * 0.5f * wq.coeffs();
@@ -132,12 +134,22 @@ namespace Scenes
 
 				HingeConstraint[j].Solve(TransformationData[j], substepTime);
 			}
+
+			if (i == 0)
+			{
+				PositionalConstraint.Init();
+				TransformationData[1] = GetTransformationData(PositionalConstraint.Entity1, PositionalConstraint.Entity2);
+			}
+			ComputePositionalData(TransformationData[1], PositionalConstraint.LocalR1, PositionalConstraint.LocalR2);
+
+			PositionalConstraint.Solve(TransformationData[1], substepTime);
+
 		}
 	}
 
 	void DoorScene::OnPostSolveConstraints(const float substepTime)
 	{
-		for (auto &entity : Entities)
+		for (auto& entity : Entities)
 		{
 			entity.LinearVelocity = (entity.Position - entity.PrevPosition) / substepTime;
 			const Eigen::Quaternionf deltaQ = entity.Rotation * entity.PrevRotation.inverse();
@@ -154,7 +166,7 @@ namespace Scenes
 
 	void DoorScene::OnEndSimulationFrame()
 	{
-		for (auto &entity : Entities)
+		for (auto& entity : Entities)
 		{
 			entity.Forces.clear();
 		}
@@ -169,7 +181,7 @@ namespace Scenes
 		const Eigen::Matrix3f inertiaTensor = ComputeInertiaTensorForCube(1.0f, 1.0f, 1.0f);
 		const Eigen::Matrix3f invInertiaTensor = inertiaTensor.inverse();
 
-		for (auto &entity : Entities)
+		for (auto& entity : Entities)
 		{
 			entity.InverseMass = 1.0f;
 			entity.RenderModel = Engine::Application::Get().GetResources().CubeModel;
@@ -179,14 +191,16 @@ namespace Scenes
 
 		Entities[0].RenderColor = YELLOW;
 		Entities[0].IsStaticBody = true;
-		Entities[0].ResetPosition = Eigen::Vector3f(0.0f, 6.0f, 0.0f);
-		Entities[0].ResetScale = Eigen::Vector3f(0.25f, 0.25f, 0.25f);
+		Entities[0].ResetPosition = Eigen::Vector3f(0.0f, 1.5f, 0.0f);
+		Entities[0].ResetScale = Eigen::Vector3f(0.25f, 2.0f, 0.25f);
 
-		Entities[1].ResetPosition = Eigen::Vector3f(0.0f, 4.25f, 0.0f);
-		Entities[1].ResetScale = Eigen::Vector3f(0.25f, 3.0f, 0.25f);
+		Entities[1].ResetPosition = Eigen::Vector3f(0.5f, 1.5f, 0.0f);
+		Entities[1].ResetScale = Eigen::Vector3f(1.0f, 2.0f, 0.125f);
 
-		Entities[2].ResetPosition = Eigen::Vector3f(0.0f, 2.25f, 0.0f);
-		Entities[2].ResetScale = Eigen::Vector3f(0.25f, 1.0f, 0.25f);
+		Entities[2].RenderColor = GREEN;
+		Entities[2].ResetPosition = Eigen::Vector3f(1.0f, 1.5f, 3.0f);
+		Entities[2].ResetScale = Eigen::Vector3f(0.25f, 0.25f, 0.25f);
+		Entities[2].IsStaticBody = true;
 	}
 
 	void DoorScene::SetupConstraints()
@@ -195,27 +209,25 @@ namespace Scenes
 		HingeConstraint[0].Entity1 = &Entities[0];
 		HingeConstraint[0].Entity2 = &Entities[1];
 
-		HingeConstraint[0].E1AlignAxis = Eigen::Vector3f(0.0f, 0.0f, 1.0f);
-		HingeConstraint[0].E2AlignAxis = Eigen::Vector3f(0.0f, 0.0f, 1.0f);
+		HingeConstraint[0].E1AlignAxis = Eigen::Vector3f(0.0f, 1.0f, 0.0f);
+		HingeConstraint[0].E2AlignAxis = Eigen::Vector3f(0.0f, 1.0f, 0.0f);
 
-		HingeConstraint[0].E1LimitAxis = Eigen::Vector3f(0.0f, 0.0f, 1.0f);
-		HingeConstraint[0].E2LimitAxis = Eigen::Vector3f(0.0f, 0.0f, 1.0f);
+		HingeConstraint[0].E1LimitAxis = Eigen::Vector3f(1.0f, 0.0f, 0.0f);
+		HingeConstraint[0].E2LimitAxis = Eigen::Vector3f(1.0f, 0.0f, 0.0f);
 
-		HingeConstraint[0].E1AttachPoint = Eigen::Vector3f(0.0f, -0.25f, 0.0f);
-		HingeConstraint[0].E2AttachPoint = Eigen::Vector3f(0.0f, 1.5f, 0.0f);
+		HingeConstraint[0].LimitAngle = true;
+		HingeConstraint[0].LimitAngleMin = 0.0f;
+		HingeConstraint[0].LimitAngleMax = 90.0f * DEG2RAD;
 
-		HingeConstraint[1].Compliance = 0.001f;
-		HingeConstraint[1].Entity1 = &Entities[1];
-		HingeConstraint[1].Entity2 = &Entities[2];
+		HingeConstraint[0].E1AttachPoint = Eigen::Vector3f(0.0f, 0.0f, 0.0f);
+		HingeConstraint[0].E2AttachPoint = Eigen::Vector3f(-0.5f, 0.0f, 0.0f);
 
-		HingeConstraint[1].E1AlignAxis = Eigen::Vector3f(0.0f, 0.0f, 1.0f);
-		HingeConstraint[1].E2AlignAxis = Eigen::Vector3f(0.0f, 0.0f, 1.0f);
-
-		HingeConstraint[1].E1LimitAxis = Eigen::Vector3f(0.0f, 0.0f, 1.0f);
-		HingeConstraint[1].E2LimitAxis = Eigen::Vector3f(0.0f, 0.0f, 1.0f);
-
-		HingeConstraint[1].E1AttachPoint = Eigen::Vector3f(0.0f, -1.5f, 0.0f);
-		HingeConstraint[1].E2AttachPoint = Eigen::Vector3f(0.0f, 0.5f, 0.0f);
+		PositionalConstraint.Entity1 = &Entities[2];
+		PositionalConstraint.Entity2 = &Entities[1];
+		PositionalConstraint.LocalR1 = Eigen::Vector3f(0.0f, 0.0f, 0.0f);
+		PositionalConstraint.LocalR2 = Eigen::Vector3f(0.5f, 0.0f, 0.0f);
+		PositionalConstraint.TargetDistance = Entities[1].Position - Entities[2].Position;
+		PositionalConstraint.Compliance = 0.1f;
 	}
 
 	void DoorScene::SetupInputs()
@@ -238,7 +250,7 @@ namespace Scenes
 	{
 		using namespace Utils::Math;
 
-		for (auto &entity : Entities)
+		for (auto& entity : Entities)
 		{
 			Eigen::Affine3f transform;
 			transform = Eigen::Translation3f(entity.Position) * entity.Rotation.toRotationMatrix() * Eigen::Scaling(entity.Scale);
@@ -246,10 +258,14 @@ namespace Scenes
 
 			DrawModel(entity.RenderModel, Vector3Zero(), 1.0f, entity.RenderColor);
 		}
-		for (auto &forceInput : ForceInputs)
+
+		for (auto& forceInput : ForceInputs)
 		{
 			forceInput.Draw();
 		}
+
+		HingeConstraint[0].DrawConstraint();
+		PositionalConstraint.DrawConstraint();
 	}
 
 	void DoorScene::OnDrawEditor()
@@ -258,7 +274,7 @@ namespace Scenes
 
 		ImGui::SeparatorText("Entities");
 		int i = 0;
-		for (auto &entity : Entities)
+		for (auto& entity : Entities)
 		{
 			i++;
 			if (ImGui::TreeNode(TextFormat("Cube %d", i)))
@@ -277,12 +293,24 @@ namespace Scenes
 			if (ImGui::TreeNode(TextFormat("Constraint %d", i)))
 			{
 				ImGui::DragFloat("Compliance", &HingeConstraint[i].Compliance, 0.001f, 0.0f, 1.0f, "%.3f", ImGuiSliderFlags_AlwaysClamp);
+				ImGui::Checkbox("LimitAngle", &HingeConstraint[i].LimitAngle);
+				ImGui::SliderAngle("LimitAngleMin", &HingeConstraint[i].LimitAngleMin);
+				ImGui::SliderAngle("LimitAngleMax", &HingeConstraint[i].LimitAngleMax);
 				ImGui::TreePop();
 			}
 		}
 
+		if (ImGui::TreeNode("Positional Constraint"))
+		{
+			ImGui::DragFloat("Compliance", &PositionalConstraint.Compliance, 0.001f, 0.0f, 1.0f, "%.3f", ImGuiSliderFlags_AlwaysClamp);
+			ImGui::DragFloat3("TargetDistance", PositionalConstraint.TargetDistance.data());
+			ImGui::TreePop();
+		}
+
+
+
 		ImGui::SeparatorText("Force Input");
-		for (auto &forceInput : ForceInputs)
+		for (auto& forceInput : ForceInputs)
 		{
 			m_IsDirty |= forceInput.DrawSettings();
 		}

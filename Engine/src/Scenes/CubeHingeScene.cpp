@@ -33,7 +33,7 @@ namespace Scenes
 		}
 	}
 
-	DoorScene::DoorScene(const std::string& sceneName)
+	CubeHingeScene::CubeHingeScene(const std::string& sceneName)
 		: Scene(sceneName)
 	{
 		SetupEntities();
@@ -41,11 +41,11 @@ namespace Scenes
 		SetupInputs();
 	}
 
-	DoorScene::~DoorScene()
+	CubeHingeScene::~CubeHingeScene()
 	{
 	}
 
-	void DoorScene::OnInit()
+	void CubeHingeScene::OnInit()
 	{
 		for (auto& entity : Entities)
 		{
@@ -53,11 +53,11 @@ namespace Scenes
 		}
 	}
 
-	void DoorScene::OnUpdate(const float substepTime)
+	void CubeHingeScene::OnUpdate(const float substepTime)
 	{
 	}
 
-	void DoorScene::OnStartSimulationFrame()
+	void CubeHingeScene::OnStartSimulationFrame()
 	{
 		for (auto& entity : Entities)
 		{
@@ -74,7 +74,7 @@ namespace Scenes
 		}
 	}
 
-	void DoorScene::OnUpdatePosition(const float substepTime)
+	void CubeHingeScene::OnUpdatePosition(const float substepTime)
 	{
 		for (auto& entity : Entities)
 		{
@@ -116,7 +116,7 @@ namespace Scenes
 		}
 	}
 
-	void DoorScene::OnSolveConstraints(const float substepTime)
+	void CubeHingeScene::OnSolveConstraints(const float substepTime)
 	{
 		for (int i = 0; i < GetNumPosIterations(); ++i)
 		{
@@ -135,7 +135,7 @@ namespace Scenes
 		}
 	}
 
-	void DoorScene::OnPostSolveConstraints(const float substepTime)
+	void CubeHingeScene::OnPostSolveConstraints(const float substepTime)
 	{
 		for (auto& entity : Entities)
 		{
@@ -152,7 +152,7 @@ namespace Scenes
 		}
 	}
 
-	void DoorScene::OnEndSimulationFrame()
+	void CubeHingeScene::OnEndSimulationFrame()
 	{
 		for (auto& entity : Entities)
 		{
@@ -160,11 +160,11 @@ namespace Scenes
 		}
 	}
 
-	void DoorScene::OnShutdown()
+	void CubeHingeScene::OnShutdown()
 	{
 	}
 
-	void DoorScene::SetupEntities()
+	void CubeHingeScene::SetupEntities()
 	{
 		const Eigen::Matrix3f inertiaTensor = ComputeInertiaTensorForCube(1.0f, 1.0f, 1.0f);
 		const Eigen::Matrix3f invInertiaTensor = inertiaTensor.inverse();
@@ -189,7 +189,7 @@ namespace Scenes
 		Entities[2].ResetScale = Eigen::Vector3f(0.25f, 1.0f, 0.25f);
 	}
 
-	void DoorScene::SetupConstraints()
+	void CubeHingeScene::SetupConstraints()
 	{
 		HingeConstraint[0].Compliance = 0.001f;
 		HingeConstraint[0].Entity1 = &Entities[0];
@@ -218,7 +218,7 @@ namespace Scenes
 		HingeConstraint[1].E2AttachPoint = Eigen::Vector3f(0.0f, 0.5f, 0.0f);
 	}
 
-	void DoorScene::SetupInputs()
+	void CubeHingeScene::SetupInputs()
 	{
 		ForceInputs[0].Entity = &Entities[1];
 		ForceInputs[0].ActivationKey = KEY_L;
@@ -234,7 +234,7 @@ namespace Scenes
 		ForceInputs[1].IsLocal = true;
 	}
 
-	void DoorScene::OnDraw()
+	void CubeHingeScene::OnDraw()
 	{
 		using namespace Utils::Math;
 
@@ -252,7 +252,7 @@ namespace Scenes
 		}
 	}
 
-	void DoorScene::OnDrawEditor()
+	void CubeHingeScene::OnDrawEditor()
 	{
 		Scene::OnDrawEditor();
 

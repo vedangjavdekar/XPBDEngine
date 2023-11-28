@@ -20,11 +20,14 @@ namespace Simulation
 		Eigen::Vector3f E1AttachPoint; // r1
 		Eigen::Vector3f E2AttachPoint; // r2
 
-		bool LimitAngle;
+		float LimitAngleMin = 0.0f;
+		float LimitAngleMax = 0.0f;
 
-		float LambdaAlignAxis;
-		float LambdaLimitAxis;
-		float LambdaPositional;
+		bool LimitAngle = false;
+
+		float LambdaAlignAxis = 0.0f;
+		float LambdaLimitAxis = 0.0f;
+		float LambdaPositional = 0.0f;
 
 		virtual void Init()override;
 

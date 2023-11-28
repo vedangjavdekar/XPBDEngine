@@ -45,7 +45,7 @@ namespace Simulation
 
 		const float deltaLambda = (-theta - alphaTilde * Lambda) / (invMassSum + alphaTilde);
 
-		const Vector3f positionalImpulse = deltaLambda * n;
+		const Vector3f positionalImpulse = -deltaLambda * n;
 
 		if (!Entity1->IsStaticBody && !Entity1->IsStaticForCorrection)
 		{

@@ -17,6 +17,7 @@
 #include "Scenes/CubePositionalScene.h"
 #include "Scenes/CubeRotationalScene.h"
 #include "Scenes/CubeHingeScene.h"
+#include "Scenes/DoorScene.h"
 
 #include "Utils/PathUtils.h"
 
@@ -192,11 +193,12 @@ namespace Engine
 		m_SceneManager.LoadScene<Scenes::ParticlesScene>(Scenes::ParticlesSceneName);
 		m_SceneManager.LoadScene<Scenes::CubePositionalScene>(Scenes::CubePositionalSceneName);
 		m_SceneManager.LoadScene<Scenes::CubeRotationalScene>(Scenes::CubeRotationalSceneName);
-		m_SceneManager.LoadScene<Scenes::DoorScene>(Scenes::CubeHingeSceneName);
+		m_SceneManager.LoadScene<Scenes::CubeHingeScene>(Scenes::CubeHingeSceneName);
+		m_SceneManager.LoadScene<Scenes::DoorScene>(Scenes::DoorSceneName);
 
 		m_IsRunning = true;
 
-		SwitchToScene(Scenes::CubeHingeSceneName);
+		SwitchToScene(Scenes::DoorSceneName);
 	}
 
 	void Application::Update(const float deltaTime)

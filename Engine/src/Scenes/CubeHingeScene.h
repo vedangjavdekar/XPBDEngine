@@ -4,11 +4,11 @@
 
 namespace Scenes
 {
-	class DoorScene final: public Engine::Scene
+	class CubeHingeScene final: public Engine::Scene
 	{
 	public:
-		DoorScene(const std::string& sceneName);
-		virtual ~DoorScene();
+		CubeHingeScene(const std::string& sceneName);
+		virtual ~CubeHingeScene();
 
 	protected:
 		void OnInit() override;

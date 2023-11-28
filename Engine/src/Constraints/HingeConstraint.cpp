@@ -40,6 +40,40 @@ namespace Simulation
 		return pos;
 	}
 
+	static void LimitHingeAngle(const TransformationData& data, const float substepTime, HingeConstraint& hingeConstraint)
+	{
+		const float minAngleRad = hingeConstraint.LimitAngleMin /** DEG2RAD*/;
+		const float maxAngleRad = hingeConstraint.LimitAngleMax /** DEG2RAD*/;
+		Eigen::Vector3f e1LimitAxisWorld = hingeConstraint.Entity1->Rotation.toRotationMatrix() * hingeConstraint.E1LimitAxis;
+		Eigen::Vector3f e2LimitAxisWorld = hingeConstraint.Entity2->Rotation.toRotationMatrix() * hingeConstraint.E2LimitAxis;
+		Eigen::Vector3f e1AlignAxisWorld = hingeConstraint.Entity1->Rotation.toRotationMatrix() * hingeConstraint.E1AlignAxis;
+
+		float phi = std::asin((e1LimitAxisWorld.cross(e2LimitAxisWorld)).dot(e1AlignAxisWorld));
+		if (e1LimitAxisWorld.dot(e2LimitAxisWorld) < 0.0f)
+		{
+			phi = PI - phi;
+		}
+
+		if (phi > PI)
+		{
+			phi = phi - 2 * PI;
+		}
+
+		if (phi < -PI)
+		{
+			phi = phi + 2 * PI;
+		}
+
+		if (phi < minAngleRad || phi > maxAngleRad)
+		{
+			phi = Clamp(phi, minAngleRad,maxAngleRad);
+			e1LimitAxisWorld = Eigen::AngleAxisf(phi, e1AlignAxisWorld) * e1LimitAxisWorld;
+			Eigen::Vector3f deltaQ = e1LimitAxisWorld.cross(e2LimitAxisWorld);
+			RotationalConstraint rot = ConstructAlignmentConstraint(hingeConstraint);
+			rot.Solve(data, substepTime, deltaQ);
+			hingeConstraint.LambdaLimitAxis += rot.Lambda;
+		}
+	}
 
 	void HingeConstraint::Init()
 	{
@@ -73,9 +107,30 @@ namespace Simulation
 		PositionalConstraint positionalConstraint = ConstructPositionalConstraint(*this);
 		positionalConstraint.Solve(data, substepTime, deltaX);
 		LambdaPositional += positionalConstraint.Lambda;
+
+		if (LimitAngle)
+		{
+			LimitHingeAngle(data, substepTime, *this);
+		}
 	}
 
 	void HingeConstraint::DrawConstraint()
 	{
+		using namespace Utils::Math;
+		if (!Entity1 || !Entity2)
+		{
+			return;
+		}
+
+		Eigen::Vector3f AlignAxis1World = Entity1->Rotation.toRotationMatrix() * E1AlignAxis.normalized();
+		Eigen::Vector3f AlignAxis2World = Entity2->Rotation.toRotationMatrix() * E2AlignAxis.normalized();
+		Eigen::Vector3f LimitAxis1World = Entity1->Rotation.toRotationMatrix() * E1LimitAxis.normalized();
+		Eigen::Vector3f LimitAxis2World = Entity2->Rotation.toRotationMatrix() * E2LimitAxis.normalized();
+
+		DrawLine3D(ToVector3(Entity1->Position), ToVector3(Entity1->Position + 5 * AlignAxis1World), GREEN);
+		DrawLine3D(ToVector3(Entity2->Position), ToVector3(Entity2->Position + 5 * AlignAxis2World), GREEN);
+
+		DrawLine3D(ToVector3(Entity1->Position), ToVector3(Entity1->Position + 5 * LimitAxis1World), RED);
+		DrawLine3D(ToVector3(Entity2->Position), ToVector3(Entity2->Position + 5 * LimitAxis2World), RED);
 	}
 }
