@@ -205,7 +205,7 @@ namespace Scenes
 
 	void DoorScene::SetupConstraints()
 	{
-		HingeConstraint[0].Compliance = 0.001f;
+		HingeConstraint[0].Compliance = 0.0f;
 		HingeConstraint[0].Entity1 = &Entities[0];
 		HingeConstraint[0].Entity2 = &Entities[1];
 
@@ -227,21 +227,21 @@ namespace Scenes
 		PositionalConstraint.LocalR1 = Eigen::Vector3f(0.0f, 0.0f, 0.0f);
 		PositionalConstraint.LocalR2 = Eigen::Vector3f(0.5f, 0.0f, 0.0f);
 		PositionalConstraint.TargetDistance = Entities[1].Position - Entities[2].Position;
-		PositionalConstraint.Compliance = 0.1f;
+		PositionalConstraint.Compliance = 0.5f;
 	}
 
 	void DoorScene::SetupInputs()
 	{
 		ForceInputs[0].Entity = &Entities[1];
 		ForceInputs[0].ActivationKey = KEY_L;
-		ForceInputs[0].ForcePosition = Eigen::Vector3f(-1.0f, 0.0f, 0.0f);
+		ForceInputs[0].ForcePosition = Eigen::Vector3f(0.5f, 0.5f, 0.0f);
 		ForceInputs[0].IsLocal = true;
-		ForceInputs[0].ForceVector = Eigen::Vector3f(1.0f, 0.0f, 0.0f);
+		ForceInputs[0].ForceVector = Eigen::Vector3f(0.0f, 0.0f, 1.0f);
 
 		ForceInputs[1].Entity = &Entities[1];
 		ForceInputs[1].ActivationKey = KEY_K;
-		ForceInputs[1].ForcePosition = Eigen::Vector3f(0.5f, 0.0f, 0.0f);
-		ForceInputs[1].ForceVector = Eigen::Vector3f(0.0f, 0.0f, 1.0f);
+		ForceInputs[1].ForcePosition = Eigen::Vector3f(0.5f, -0.5f, 0.0f);
+		ForceInputs[1].ForceVector = Eigen::Vector3f(0.0f, 0.0f, -10.0f);
 		ForceInputs[1].IsRotationalForce = false;
 		ForceInputs[1].IsLocal = true;
 	}

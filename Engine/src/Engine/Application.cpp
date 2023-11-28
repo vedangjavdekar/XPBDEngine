@@ -198,7 +198,7 @@ namespace Engine
 
 		m_IsRunning = true;
 
-		SwitchToScene(Scenes::DoorSceneName);
+		SwitchToScene(Scenes::ParticlesSceneName);
 	}
 
 	void Application::Update(const float deltaTime)

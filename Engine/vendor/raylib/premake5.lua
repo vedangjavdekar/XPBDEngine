@@ -36,7 +36,8 @@ project "raylib"
     filter "action:vs*"
         defines{
             "_WINSOCK_DEPRECATED_NO_WARNINGS",
-            "_CRT_SECURE_NO_WARNINGS"
+            "_CRT_SECURE_NO_WARNINGS",
+            "PLATFORM_DESKTOP"
         }
         characterset ("MBCS")
     

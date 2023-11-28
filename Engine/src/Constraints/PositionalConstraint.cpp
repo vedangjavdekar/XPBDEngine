@@ -101,5 +101,15 @@ namespace Simulation
 		}
 
 		Engine::DebugDrawing::DrawDebugLine(ToVector3(Entity1->Position), ToVector3(Entity2->Position), constraintColor, 0.0f);
+		
+		if (LocalR1.isZero() && LocalR2.isZero())
+		{
+			return;
+		}
+
+		TransformationData data = GetTransformationData(Entity1, Entity2);
+		ComputePositionalData(data, LocalR1, LocalR2);
+		
+		Engine::DebugDrawing::DrawDebugLine(ToVector3(Entity1->Position + data.WorldR1), ToVector3(Entity2->Position + data.WorldR2), YELLOW, 0.0f);
 	}
 }

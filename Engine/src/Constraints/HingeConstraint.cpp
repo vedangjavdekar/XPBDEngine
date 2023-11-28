@@ -4,6 +4,7 @@
 #include "RotationalConstraint.h"
 
 #include "Engine/Entity.h"
+#include "Engine/DebugDrawing.h"
 #include "Constraints/TransformationData.h"
 
 #include "raylib.h"
@@ -127,10 +128,10 @@ namespace Simulation
 		Eigen::Vector3f LimitAxis1World = Entity1->Rotation.toRotationMatrix() * E1LimitAxis.normalized();
 		Eigen::Vector3f LimitAxis2World = Entity2->Rotation.toRotationMatrix() * E2LimitAxis.normalized();
 
-		DrawLine3D(ToVector3(Entity1->Position), ToVector3(Entity1->Position + 5 * AlignAxis1World), GREEN);
-		DrawLine3D(ToVector3(Entity2->Position), ToVector3(Entity2->Position + 5 * AlignAxis2World), GREEN);
+		Engine::DebugDrawing::DrawDebugLine(ToVector3(Entity1->Position), ToVector3(Entity1->Position + 5 * AlignAxis1World), GREEN, 0.0f);
+		Engine::DebugDrawing::DrawDebugLine(ToVector3(Entity2->Position), ToVector3(Entity2->Position + 5 * AlignAxis2World), GREEN, 0.0f);
 
-		DrawLine3D(ToVector3(Entity1->Position), ToVector3(Entity1->Position + 5 * LimitAxis1World), RED);
-		DrawLine3D(ToVector3(Entity2->Position), ToVector3(Entity2->Position + 5 * LimitAxis2World), RED);
+		Engine::DebugDrawing::DrawDebugLine(ToVector3(Entity1->Position), ToVector3(Entity1->Position + 5 * LimitAxis1World), RED, 0.0f);
+		Engine::DebugDrawing::DrawDebugLine(ToVector3(Entity2->Position), ToVector3(Entity2->Position + 5 * LimitAxis2World), RED, 0.0f);
 	}
 }
