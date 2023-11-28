@@ -164,7 +164,6 @@ namespace Scenes
 		Entities[0].InertiaTensor = ComputeInertiaTensorForCube(1.0f, 1.0f, 1.0f);
 		Entities[0].InverseInertiaTensor = Entities[0].InertiaTensor.inverse();
 		Entities[0].ResetPosition = Eigen::Vector3f(-1.0f, 2.0f, 0.0f);
-		Entities[0].IsStaticForCorrection = true;
 
 		Entities[1].InverseMass = 1.0f;
 		Entities[1].InertiaTensor = ComputeInertiaTensorForCube(0.1f, 0.1f, 0.1f);
@@ -188,7 +187,7 @@ namespace Scenes
 		ForceInputs[0].ForceVector = Eigen::Vector3f(0.0f, 1.0f, 0.0f);
 		ForceInputs[0].IsRotationalForce = true;
 
-		ForceInputs[1].Entity = &Entities[1];
+		ForceInputs[1].Entity = &Entities[0];
 		ForceInputs[1].ActivationKey = KEY_K;
 		ForceInputs[1].ForcePosition = Eigen::Vector3f(1.0f, 0.0f, 0.0f);
 		ForceInputs[1].IsLocal = true;
