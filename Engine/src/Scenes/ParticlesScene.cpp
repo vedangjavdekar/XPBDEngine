@@ -235,9 +235,13 @@ namespace Scenes
 	{
 		ForceInputs[0].ActivationKey = KEY_K;
 		ForceInputs[0].Entity = &Entities[3];
+		ForceInputs[0].ForceVector = Eigen::Vector3f(0.0f,50.0f,0.0f);
+		ForceInputs[0].IsLocal = true;
 
 		ForceInputs[1].ActivationKey = KEY_L;
-		ForceInputs[1].Entity = &Entities[4];
+		ForceInputs[1].Entity = &Entities[1];
+		ForceInputs[1].ForceVector = Eigen::Vector3f(0.0f,50.0f,0.0f);
+		ForceInputs[1].IsLocal = true;
 	}
 
 	void ParticlesScene::DrawParticle(const std::string &particleName, Simulation::Entity &particle, size_t StoredForceIndex)

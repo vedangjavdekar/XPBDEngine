@@ -184,8 +184,9 @@ namespace Scenes
 	void CubePositionalScene::SetupConstraints()
 	{
 		PositionalConstraint.Entity1 = &Entities[1];
+		PositionalConstraint.LocalR1 = Eigen::Vector3f(0.25f, 0.5f, 0.0f);
 		PositionalConstraint.Entity2 = &Entities[0];
-		PositionalConstraint.Compliance = 0.001f;
+		PositionalConstraint.Compliance = 0.000f;
 		PositionalConstraint.TargetDistance = Eigen::Vector3f(0.0f, -2.0f, 0.0f);
 	}
 
@@ -193,15 +194,15 @@ namespace Scenes
 	{
 		ForceInputs[0].Entity = &Entities[1];
 		ForceInputs[0].ActivationKey = KEY_L;
-		ForceInputs[0].ForcePosition = Eigen::Vector3f(0.5f, 0.5f, 0.0f);
+		ForceInputs[0].ForceVector = Eigen::Vector3f(0.0f, 0.0f, 1.0f);
+		ForceInputs[0].ForcePosition = Eigen::Vector3f(0.5f, 0.0f, 0.0f);
 		ForceInputs[0].IsLocal = true;
-		ForceInputs[0].ForceVector = Eigen::Vector3f(0.0f, 1.0f, 0.0f);
 
 		ForceInputs[1].Entity = &Entities[1];
 		ForceInputs[1].ActivationKey = KEY_K;
-		ForceInputs[1].ForcePosition = Eigen::Vector3f(0.0f, 0.5f, 0.0f);
+		ForceInputs[1].ForceVector = Eigen::Vector3f(0.0, 1.0f, 0.0f);
+		ForceInputs[1].ForcePosition = Eigen::Vector3f(1.0f, 0.0f, 0.0f);
 		ForceInputs[1].IsLocal = true;
-		ForceInputs[1].ForceVector = Eigen::Vector3f(-1.0f, 0.0f, 0.0f);
 		ForceInputs[1].IsRotationalForce = true;
 	}
 

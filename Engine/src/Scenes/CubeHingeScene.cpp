@@ -187,6 +187,7 @@ namespace Scenes
 
 		Entities[2].ResetPosition = Eigen::Vector3f(0.0f, 2.25f, 0.0f);
 		Entities[2].ResetScale = Eigen::Vector3f(0.25f, 1.0f, 0.25f);
+		Entities[2].RenderColor = GREEN;
 	}
 
 	void CubeHingeScene::SetupConstraints()
@@ -222,9 +223,9 @@ namespace Scenes
 	{
 		ForceInputs[0].Entity = &Entities[1];
 		ForceInputs[0].ActivationKey = KEY_L;
+		ForceInputs[0].ForceVector = Eigen::Vector3f(10.0f, 0.0f, 0.0f);
 		ForceInputs[0].ForcePosition = Eigen::Vector3f(-1.0f, 0.0f, 0.0f);
 		ForceInputs[0].IsLocal = true;
-		ForceInputs[0].ForceVector = Eigen::Vector3f(1.0f, 0.0f, 0.0f);
 
 		ForceInputs[1].Entity = &Entities[1];
 		ForceInputs[1].ActivationKey = KEY_K;

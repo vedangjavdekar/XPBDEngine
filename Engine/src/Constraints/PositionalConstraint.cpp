@@ -15,7 +15,7 @@ namespace Simulation
 	void PositionalConstraint::Solve(const TransformationData& data, const float substepTime)
 	{
 		using namespace Eigen;
-		const Vector3f deltaX = (Entity1->Position - Entity2->Position) - TargetDistance;
+		const Vector3f deltaX = (Entity1->Position + data.WorldR1 - Entity2->Position - data.WorldR2) - TargetDistance;
 		Solve(data, substepTime, deltaX);
 	}
 
